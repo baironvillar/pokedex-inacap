@@ -1,4 +1,6 @@
 import React, { useEffect } from 'react'
+import Image from "next/image"
+import { PokemonDetail } from "@/types/pokemon"
 import { Card, CardHeader, CardTitle, CardImage, CardDescription } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getPokemonByUrl } from "@/api/api"
@@ -6,14 +8,14 @@ import { useRouter } from 'next/navigation'
 
 export default function PokemonPreview({ pokemonUrl }: { pokemonUrl: string }) {
 
-  const [pokemon, setPokemon] = React.useState<any>(null)
+  const [pokemon, setPokemon] = React.useState<PokemonDetail | null>(null)
   const router = useRouter()
 
   useEffect(() => {
     getPokemonByUrl(pokemonUrl).then((data) => {
       setPokemon(data)
     })
-  }, [])
+  }, [pokemonUrl])
 
   if (!pokemon) {
     return (
@@ -39,11 +41,17 @@ export default function PokemonPreview({ pokemonUrl }: { pokemonUrl: string }) {
         <CardTitle className="capitalize">{pokemon?.name} n°{pokemon?.id}</CardTitle>
         <CardImage className="flex w-full items-center justify-center">
           {pokemon?.sprites.other["official-artwork"].front_default && (
-            <img src={pokemon?.sprites.other["official-artwork"].front_default} alt={pokemon?.name} className="size-56" />
+            <Image
+              src={pokemon.sprites.other["official-artwork"].front_default}
+              alt={pokemon.name}
+              width={224}
+              height={224}
+              className="size-56 object-contain"
+            />
           )}
         </CardImage>
         <CardDescription className="flex flex-col items-start justify-start gap-2">
-          <p>Tipos: {pokemon?.types.map((type: any) => type.type.name).join(", ")}</p>
+          <p>Tipos: {pokemon?.types.map((type) => type.type.name).join(", ")}</p>
           <p>Altura: {pokemon?.height / 10} m</p>
           <p>Peso: {pokemon?.weight / 10} kg</p>
         </CardDescription>

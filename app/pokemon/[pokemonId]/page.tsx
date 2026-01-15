@@ -1,8 +1,10 @@
 "use client"
 
+import { PokemonDetail } from "@/types/pokemon"
 import { getPokemonByUrl } from "@/api/api"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useParams } from "next/navigation"
+import Image from "next/image"
 import { useState, useEffect } from "react"
 import {
   Breadcrumb,
@@ -16,13 +18,15 @@ import Link from "next/link"
 
 export default function PokemonPage() {
   const params = useParams()
-  const [pokemon, setPokemon] = useState<any>(null)
+  const [pokemon, setPokemon] = useState<PokemonDetail | null>(null)
 
   useEffect(() => {
-    getPokemonByUrl(`https://pokeapi.co/api/v2/pokemon/${params.pokemonId as string}`).then((data) => {
-      setPokemon(data)
-    })
-  }, [])
+    if (params.pokemonId) {
+      getPokemonByUrl(`https://pokeapi.co/api/v2/pokemon/${params.pokemonId as string}`).then((data) => {
+        setPokemon(data)
+      })
+    }
+  }, [params.pokemonId])
 
   if (!pokemon) {
     return (
@@ -57,10 +61,13 @@ export default function PokemonPage() {
               <CardTitle className="sr-only">{pokemon.name} Image</CardTitle>
             </CardHeader>
             <CardContent className="flex items-center justify-center p-10">
-              <img
+              <Image
                 src={pokemon.sprites.other["official-artwork"].front_default}
                 alt={pokemon.name}
+                width={320}
+                height={320}
                 className="size-64 object-contain drop-shadow-2xl transition-transform duration-500 hover:scale-110 sm:size-80"
+                priority
               />
             </CardContent>
           </Card>
@@ -76,7 +83,7 @@ export default function PokemonPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {pokemon.types.map((type: any) => (
+              {pokemon.types.map((type) => (
                 <span
                   key={type.type.name}
                   className="rounded-full px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-white shadow-sm"
@@ -111,7 +118,7 @@ export default function PokemonPage() {
             <div className="space-y-4 pt-4">
               <h3 className="text-xl font-bold">Estadísticas Base</h3>
               <div className="space-y-3">
-                {pokemon.stats.map((stat: any) => (
+                {pokemon.stats.map((stat) => (
                   <div key={stat.stat.name} className="space-y-1.5">
                     <div className="flex justify-between text-sm font-medium">
                       <span className="capitalize text-slate-600 dark:text-slate-300">

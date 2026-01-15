@@ -13,12 +13,14 @@ import { ModeToggle } from "@/components/ui/mode-toggle"
 import PokemonList from "@/components/pokemon/pokemon-list"
 import { getPokemonList } from "@/api/api"
 
+import { PokemonListResult } from "@/types/pokemon"
+
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("")
 
-  const [pokemonList, setPokemonList] = useState<any[]>([])
+  const [pokemonList, setPokemonList] = useState<PokemonListResult[]>([])
   const [visibleCount, setVisibleCount] = useState(20)
-  const observerTarget = useRef(null)
+  const observerTarget = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     getPokemonList().then((data) => {
@@ -39,20 +41,18 @@ export default function Home() {
       { threshold: 0.1 }
     )
 
-    if (observerTarget.current) {
-      observer.observe(observerTarget.current)
+    const currentTarget = observerTarget.current
+
+    if (currentTarget) {
+      observer.observe(currentTarget)
     }
 
     return () => {
-      if (observerTarget.current) {
-        observer.unobserve(observerTarget.current)
+      if (currentTarget) {
+        observer.unobserve(currentTarget)
       }
     }
-  }, [observerTarget])
-
-  useEffect(() => {
-    setVisibleCount(20)
-  }, [searchTerm])
+  }, [])
 
   console.log(filteredPokemonList)
 
@@ -64,7 +64,14 @@ export default function Home() {
       <section className="flex items-center justify-between w-full">
         <div className="flex items-center w-full mr-4">
           <InputGroup>
-            <InputGroupInput placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+            <InputGroupInput
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                setVisibleCount(20)
+              }}
+            />
             <InputGroupAddon>
               <SearchIcon />
             </InputGroupAddon>
